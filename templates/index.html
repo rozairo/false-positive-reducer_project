@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Code Vulnerability Detector</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+
+    <script>
+        function insertSampleCode(type) {
+            let safeCode = `#include <stdio.h>\nint main() {\n printf("Hello, World!");\n return 0;\n}`;
+            let vulnCode = `#include <stdio.h>\n#include <string.h>\nint main() {\n char buffer[10];\n strcpy(buffer, "AAAA");\n return 0;\n}`;
+            document.getElementById('codeBox').value = type === 'safe' ? safeCode : vulnCode;
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function validateForm() {
+            let code = document.getElementById('codeBox').value.trim();
+            if (code === "") {
+                alert("Please paste your source code before analyzing!");
+                return false;
+            }
+            showLoading();
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='images/banner.png') }}" alt="Code Vulnerability Detector" class="banner">
+        <h1>Paste Your Code Below</h1>
+        <form method="POST" onsubmit="return validateForm()">
+            <textarea id="codeBox" name="code" placeholder="Paste your source code here..."></textarea><br><br>
+            <input type="submit" value="Analyze">
+            <button type="button" onclick="document.getElementById('codeBox').value = ''">Clear</button>
+            <button type="button" onclick="insertSampleCode('safe')">Load Safe Code</button>
+            <button type="button" onclick="insertSampleCode('vulnerable')">Load Vulnerable Code</button>
+            <p id="loading" style="display:none;">⏳ Analyzing...</p>
+        </form>
+        {% if prediction %}
+            <h2 id="result" class="show">Prediction: <span class="{{ prediction|lower }}">{{ prediction }}</span></h2>
+        {% endif %}
+        <footer>
+            <p>© 2025 Code Vulnerability Detector | Built by :)</p>
+        </footer>
+    </div>
+</body>
+</html>
